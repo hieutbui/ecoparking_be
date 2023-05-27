@@ -22,9 +22,9 @@ An application that help people find their available parking slot
   // hieubt: add padding in home screen <br/>
   const paddingHome = 100
 
-## 7. Side effect
+## 4. Side effect
 
-## 8. Cấu trúc của project
+## 5. Cấu trúc của project
 
 Các files không phải file cấu hình phải đặt trong src
 1.  src/authentication: middleware kiểm tra phiên sử dụng
@@ -37,7 +37,7 @@ Các files không phải file cấu hình phải đặt trong src
 8.  src/repositories: chứa các file xử lý tương tác với database
 9.  src/routes: chứa các file định nghĩa route cho api
 
-## 9. Về việc cài thêm cái package
+## 6. Về việc cài thêm cái package
 
 Dùng "yarn add" thay cho "npm install"
 
