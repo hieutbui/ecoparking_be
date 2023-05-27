@@ -42,6 +42,5 @@ Các files không phải file cấu hình phải đặt trong src
 Dùng "yarn add" thay cho "npm install"
 
 # Một số lưu ý
----
 Thêm file .env nếu gặp lỗi "App variables required"
 
