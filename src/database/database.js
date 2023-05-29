@@ -15,7 +15,8 @@ async function connect() {
     } else if (code === 'ENOTFOUND') {
       throw new Exception(Exception.WRONG_CONNECTION_STRING);
     }
-
+    print('error: ' + error, OutputType.WARNING);
+    print('error code: ' + error.code, OutputType.ERROR);
     throw new Exception(Exception.CANNOT_CONNECT_MONGOOSE);
   }
 }
