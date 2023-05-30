@@ -5,7 +5,7 @@ import controllers from '../controllers/index.js';
 const users = express.Router();
 
 users.get('/', (req, res) => {
-  res.send('GET users');
+  res.send('response from users');
 });
 
 users.get('/:id', controllers.users.getDetailUser);

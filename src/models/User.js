@@ -1,14 +1,14 @@
-import { ObjectId } from 'mongodb';
 import mongoose, { Schema } from 'mongoose';
 import isEmail from 'validator/lib/isEmail.js';
+import { schemaTypes } from '../global/constants.js';
 
 const User = mongoose.model(
   'User',
   new Schema(
     {
-      id: { type: ObjectId },
+      id: { type: schemaTypes.ObjectId },
       name: {
-        type: String,
+        type: schemaTypes.String,
         required: true, //NOT NULL
         validate: {
           validator: (value) => value.length > 3,
@@ -16,26 +16,26 @@ const User = mongoose.model(
         },
       },
       email: {
-        type: String,
+        type: schemaTypes.String,
         validate: {
           validator: (value) => isEmail(value),
           message: 'Email is incorrect format',
         },
       },
       gender: {
-        type: String,
+        type: schemaTypes.String,
         enum: {
-          values: ['Male', 'Female'],
+          values: ['Male', 'Female', 'Other'],
           message: '{VALUE} is not supported',
         },
         required: false,
       },
       password: {
-        type: String,
+        type: schemaTypes.String,
         required: true,
       },
       phoneNumber: {
-        type: String,
+        type: schemaTypes.String,
         required: true,
         validate: {
           validator: (value) => value.length > 5,
@@ -43,13 +43,24 @@ const User = mongoose.model(
         },
       },
       address: {
-        type: String,
+        type: schemaTypes.String,
         required: true,
+      },
+      // 0: Admin, 1: Employee, 2: Customer
+      role: {
+        type: [0, 1, 2],
+        message: 'Role is not supported',
+        required: true,
+      },
+      workingTime: {
+        type: schemaTypes.String,
+        required: function () {
+          return this.role === 1;
+        },
       },
     },
     {
-      autoCreate: true,
-      autoIndex: true,
+      timestamps: true,
     }
   )
 );
