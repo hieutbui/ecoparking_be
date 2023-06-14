@@ -9,8 +9,10 @@ const Parking = mongoose.model(
       name: { type: schemaTypes.String, required: true },
       address: { type: schemaTypes.String, required: true },
       quantity: { type: schemaTypes.Number, required: true },
-      image: { type: schemaTypes.String, required: true},
-    },
+      image: { type: schemaTypes.String },
+      longtitude: { type: schemaTypes.String },
+      latitude: { type: schemaTypes.String },
+    },  
     {
       timestamps: true,
     }
