@@ -15,6 +15,10 @@ const User = mongoose.model(
           message: 'Username must be at least 3 characters',
         },
       },
+      avatar: {
+        type: schemaTypes.String,
+        required: false,
+      },
       email: {
         type: schemaTypes.String,
         validate: {
@@ -48,7 +52,11 @@ const User = mongoose.model(
       },
       // 0: Admin, 1: Employee, 2: Customer
       role: {
-        type: [0, 1, 2],
+        type: schemaTypes.Number,
+        enum: {
+          values: [0, 1, 2],
+          message: '{VALUE} is not supported',
+        },
         message: 'Role is not supported',
         required: true,
       },
