@@ -8,6 +8,8 @@ const Parking = mongoose.model(
       id: { type: schemaTypes.ObjectId },
       name: { type: schemaTypes.String, required: true },
       quantity: { type: schemaTypes.Number, required: true },
+      // 0: planned, 1: spontaneous
+      parkType: {type: [0, 1], required: true},
     },
     {
       timestamps: true,
