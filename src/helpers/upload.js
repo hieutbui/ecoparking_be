@@ -20,14 +20,18 @@ const storage = getStorage();
  * @property {String} originalname
  * @property {String} mimetype
  * @property {Buffer} buffer
+ * @property {String} email
  * @param {UploadImageParams} param
  * @returns {Promise<{downloadURL?: String}>}
  */
-async function image({ originalname, mimetype, buffer }) {
+async function image({ originalname, mimetype, buffer, email }) {
   try {
     const dateTime = utils.getCurrentDateTime();
 
-    const storageRef = ref(storage, `images/${originalname + ' ' + dateTime}`);
+    const storageRef = ref(
+      storage,
+      `images/${email}/${originalname + ' ' + dateTime}`
+    );
 
     /**
      * @description Create file metadata including the content type

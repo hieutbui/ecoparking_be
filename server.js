@@ -8,6 +8,7 @@ import { OutputType, print } from './src/helpers/print.js';
 import Exception from './src/exceptions/Exception.js';
 import helmet from 'helmet';
 import cors from 'cors';
+import checkToken from './src/authentication/auth.js';
 
 /**
  * App Variables
@@ -24,6 +25,7 @@ const port = process.env.PORT ?? 3000;
 /**
  * App configuration
  */
+app.use(checkToken);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(helmet());

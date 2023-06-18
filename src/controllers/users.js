@@ -82,7 +82,8 @@ const insertUser = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   const { file } = req;
-  const { email, gender, phoneNumber, address, role, workingTime } = req.body;
+  const { email, gender, phoneNumber, address, role, workingTime, id, name } =
+    req.body;
 
   if (
     !file &&
@@ -91,7 +92,9 @@ const updateProfile = async (req, res) => {
     !phoneNumber &&
     !address &&
     !role &&
-    !workingTime
+    !workingTime &&
+    !id &&
+    !name
   ) {
     return res.status(HttpStatusCode.BAD_REQUEST).send({
       result: 'failed',
@@ -99,24 +102,25 @@ const updateProfile = async (req, res) => {
     });
   } else {
     try {
-      const { originalname, mimetype, buffer } = file;
-      const uploadImage = await upload.image({
-        originalname: originalname,
-        mimetype: mimetype,
-        buffer: buffer,
+      const user = await repositories.users.updateProfile({
+        id,
+        name,
+        avatar: file,
+        email,
+        gender,
+        phoneNumber,
+        address,
+        role,
+        workingTime,
       });
-      return res.status(HttpStatusCode.OK).send({
+      return res.status(HttpStatusCode.OK).json({
         result: 'ok',
-        message: 'file uploaded to firebase storage',
-        name: originalname,
-        type: mimetype,
-        downloadURL: uploadImage.downloadURL,
+        data: user,
       });
     } catch (error) {
-      return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({
+      return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
         result: 'failed',
-        message: Exception.SOMETHING_WRONG,
-        err: uploadImage.error,
+        error: error.toString(),
       });
     }
   }
