@@ -4,18 +4,53 @@ import { print, OutputType } from '../helpers/print.js';
 import models from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import upload from '../helpers/upload.js';
+import { deleteObject, getStorage, ref } from 'firebase/storage';
+
+const storage = getStorage();
 
 const updateProfile = async ({
+  id,
   name,
   avatar,
   email,
   gender,
-  password,
   phoneNumber,
   address,
   role,
   workingTime,
-}) => {};
+}) => {
+  const user = await models.User.findById(id);
+  if (user) {
+    user.name = name ?? user.name;
+    if (avatar) {
+      if (user.avatar) {
+        const imageRef = ref(storage, user.avatar);
+        await deleteObject(imageRef);
+      }
+      const { originalname, mimetype, buffer } = avatar;
+      const uploadImage = await upload.image({
+        originalname: originalname,
+        mimetype: mimetype,
+        buffer: buffer,
+        email: user.email,
+      });
+      user.avatar = uploadImage.downloadURL;
+    }
+    user.email = email;
+    user.gender = gender ?? user.gender;
+    user.phoneNumber = phoneNumber ?? user.phoneNumber;
+    user.address = address ?? user.address;
+    user.role = role ?? user.role;
+    user.workingTime = workingTime ?? user.workingTime;
+    await user.save();
+    return {
+      ...user._doc,
+      password: 'not show',
+    };
+  } else {
+    throw new Exception(Exception.USER_NOT_EXISTED);
+  }
+};
 
 const login = async ({ email, password }) => {
   let existingUser = await models.User.findOne({ email }).exec();
@@ -28,7 +63,7 @@ const login = async ({ email, password }) => {
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: '30 days',
+          expiresIn: '10 days',
         }
       );
       return {
@@ -67,6 +102,7 @@ const register = async ({
     originalname: originalname,
     mimetype: mimetype,
     buffer: buffer,
+    email: email,
   });
 
   const newUser = await models.User.create({
@@ -90,4 +126,5 @@ const register = async ({
 export default {
   login,
   register,
+  updateProfile,
 };
