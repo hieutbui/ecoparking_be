@@ -69,7 +69,7 @@ const login = async ({ email, password }) => {
       return {
         ...existingUser.toObject(),
         password: 'not show',
-        token: token,
+        accessToken: token,
       };
     } else {
       throw new Exception(Exception.INVALID_EMAIL_OR_PASSWORD);
