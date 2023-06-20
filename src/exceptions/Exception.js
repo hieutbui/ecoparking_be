@@ -12,6 +12,10 @@ export default class Exception extends Error {
   static CANNOT_REGISTER = 'Can not register';
   static TOKEN_EXPIRED = 'Token is expired';
   static USER_NOT_EXISTED = 'User is not existed';
+  static REQUIRED_REFRESH_TOKEN = 'Refresh Token is required';
+  static REFRESH_TOKEN_NOT_FOUND = 'Refresh Token is not in database';
+  static REFRESH_TOKEN_EXPIRED =
+    'Refresh token was expired. Please make a new sign in request';
   constructor(message) {
     super(message);
     print(message, OutputType.ERROR);

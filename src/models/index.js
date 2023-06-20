@@ -6,6 +6,7 @@ import Parking from './Parking.js';
 import ParkingSlot from './ParkingSlot.js';
 import UnitPrice from './UnitPrice.js';
 import AccidentTicket from './AccidentTicket.js';
+import RefreshToken from './RefreshToken.js';
 
 export default {
   User,
@@ -16,4 +17,5 @@ export default {
   ParkingSlot,
   UnitPrice,
   AccidentTicket,
+  RefreshToken,
 };

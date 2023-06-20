@@ -39,4 +39,6 @@ users.post(
   controllers.users.updateProfile
 );
 
+users.post('/refreshLogin', controllers.users.refreshLogin);
+
 export default users;
