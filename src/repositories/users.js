@@ -5,6 +5,10 @@ import models from '../models/index.js';
 import Exception from '../exceptions/Exception.js';
 import upload from '../helpers/upload.js';
 import { deleteObject, getStorage, ref } from 'firebase/storage';
+import {
+  createRefreshToken,
+  verifyExpiration,
+} from '../models/RefreshToken.js';
 
 const storage = getStorage();
 
@@ -63,19 +67,59 @@ const login = async ({ email, password }) => {
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: '10 days',
+          expiresIn: process.env.JWT_EXPIRATION,
         }
       );
+      let refreshToken = await createRefreshToken(existingUser);
       return {
         ...existingUser.toObject(),
         password: 'not show',
         accessToken: token,
+        refreshToken,
       };
     } else {
       throw new Exception(Exception.INVALID_EMAIL_OR_PASSWORD);
     }
   } else {
     throw new Exception(Exception.INVALID_EMAIL_OR_PASSWORD);
+  }
+};
+
+const refreshLogin = async ({ refreshToken }) => {
+  if (!refreshToken) {
+    throw new Exception(Exception.REQUIRED_REFRESH_TOKEN);
+  }
+
+  try {
+    let token = await models.RefreshToken.findOne({ token: refreshToken });
+
+    if (!token) {
+      throw new Exception(Exception.REFRESH_TOKEN_NOT_FOUND);
+    }
+
+    if (verifyExpiration(token)) {
+      models.RefreshToken.findByIdAndRemove(token._id).exec();
+
+      throw new Exception(Exception.REFRESH_TOKEN_EXPIRED);
+    }
+
+    let user = await models.User.findById(token.user._id);
+    let newAccessToken = jwt.sign(
+      {
+        data: user,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRATION,
+      }
+    );
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: token.token,
+    };
+  } catch (error) {
+    throw new Exception(Exception.SOMETHING_WRONG);
   }
 };
 
@@ -127,4 +171,5 @@ export default {
   login,
   register,
   updateProfile,
+  refreshLogin,
 };
