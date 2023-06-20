@@ -20,7 +20,7 @@ export default function checkToken(req, res, next) {
     const jwtObject = jwt.verify(token, process.env.JWT_SECRET);
     const isExpired = Date.now() >= jwtObject.exp * 1000;
     if (isExpired) {
-      return res.status(HttpStatusCode.BAD_REQUEST).json({
+      return res.status(HttpStatusCode.UNAUTHORIZED).json({
         result: 'failed',
         message: Exception.TOKEN_EXPIRED,
       });
@@ -29,7 +29,7 @@ export default function checkToken(req, res, next) {
       return;
     }
   } catch (error) {
-    return res.status(HttpStatusCode.BAD_REQUEST).json({
+    return res.status(HttpStatusCode.UNAUTHORIZED).json({
       result: 'failed',
       error: error.toString(),
     });
