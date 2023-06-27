@@ -32,6 +32,7 @@ app.use(helmet());
 app.use(cors());
 app.use('/users', routes.users);
 app.use('/unitPrices', routes.unitPrices);
+app.use('/parkings', routes.parkings);
 
 app.get('/', (req, res) => {
   res.send('response from root router');
