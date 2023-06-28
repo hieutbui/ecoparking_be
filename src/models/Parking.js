@@ -19,7 +19,14 @@ const Parking = mongoose.model(
         },
       },
       // 0: planned, 1: spontaneous
-      parkType: { type: [0, 1], required: true },
+      parkType: {
+        type: schemaTypes.Number,
+        enum: {
+          values: [0, 1],
+          message: '{VALUE} is not supported',
+        },
+        required: true,
+      },
     },
     {
       timestamps: true,
