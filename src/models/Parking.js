@@ -10,11 +10,11 @@ const Parking = mongoose.model(
       address: { type: schemaTypes.String, required: true },
       quantity: { type: schemaTypes.Number, required: true },
       image: { type: schemaTypes.String },
-      longtitude: { type: schemaTypes.Decimal128, required: true },
-      latitude: { type: schemaTypes.Decimal128, required: true },
+      longtitude: { type: schemaTypes.String },
+      latitude: { type: schemaTypes.String },
       // 0: planned, 1: spontaneous
-      parkType: { type: [0, 1], required: true },
-    },
+      parkType: {type: [0, 1], required: true},
+    },  
     {
       timestamps: true,
     }
