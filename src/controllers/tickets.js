@@ -8,11 +8,11 @@ const { ObjectId } = mongoose.Types;
 
 const createNewTicket = async (req, res) => {
     try {
-        const { customerId, parkingId, carNumber, carType, special } = req.body;
-        console.log(special);
+        const { customerId, parkingId, checkedOut, carNumber, carType, special } = req.body;
 
         if (!carNumber || typeof carNumber !== 'string' ||
-            !carType || typeof carType !== 'string') 
+            !carType || typeof carType !== 'string'||
+            !checkedOut || typeof checkedOut !== 'object') 
         {
             return res.status(HttpStatusCode.BAD_REQUEST).json({
                 message: 'Invalid parameter types!'
@@ -20,11 +20,13 @@ const createNewTicket = async (req, res) => {
         }
 
         const CURRENT_DATE = new Date();
+        console.log(typeof CURRENT_DATE);
 
         // Check if ticket is available
         const existingTicket = await SingleTicket.findOne({
             customerId,
             checkedIn: CURRENT_DATE,
+            checkedOut,
           });
   
         if (existingTicket) {
@@ -44,6 +46,7 @@ const createNewTicket = async (req, res) => {
         const newTicket = await SingleTicket.create({
             ticketDetail: ticketDetail._id,
             checkedIn: CURRENT_DATE,
+            checkedOut,
             parkedDate: CURRENT_DATE.toISOString().split('T')[0],
           });  
 
