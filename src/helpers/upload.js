@@ -22,24 +22,16 @@ const storage = getStorage();
  * @property {Buffer} buffer
  * @property {String?} email
  * @property {string?} parkName
- * @property {'users' | 'parkings'} model
  * @param {UploadImageParams} param
  * @returns {Promise<{downloadURL?: String}>}
  */
-async function image({
-  originalname,
-  mimetype,
-  buffer,
-  email,
-  model,
-  parkName,
-}) {
+async function image({ originalname, mimetype, buffer, email }) {
   try {
     const dateTime = utils.getCurrentDateTime();
 
     const storageRef = ref(
       storage,
-      `${model}/images/${email ?? parkName}/${originalname + ' ' + dateTime}`
+      `images/${email}/${originalname + ' ' + dateTime}`
     );
 
     /**

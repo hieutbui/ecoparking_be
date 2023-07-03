@@ -6,8 +6,8 @@ const TicketDetail = mongoose.model(
   new Schema(
     {
       id: { type: schemaTypes.ObjectId },
-      customer: { type: schemaTypes.ObjectId, ref: 'User', required: true },
-      parking: { type: schemaTypes.ObjectId, ref: 'Parking', required: true },
+      customerId: { type: schemaTypes.ObjectId, ref: 'User', required: true },
+      parkingId: { type: schemaTypes.ObjectId, ref: 'Parking', required: true },
       carNumber: { type: schemaTypes.String, required: true },
       carType: { type: schemaTypes.String, required: true },
       special: { type: schemaTypes.String },
