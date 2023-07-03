@@ -27,6 +27,13 @@ const Parking = mongoose.model(
         },
         required: true,
       },
+      unitPrice: {
+        type: schemaTypes.ObjectId,
+        ref: 'UnitPrice',
+        required: function () {
+          return this.parkType === 0;
+        },
+      },
     },
     {
       timestamps: true,
