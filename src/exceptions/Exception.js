@@ -19,6 +19,7 @@ export default class Exception extends Error {
   static INVALID_PARAMETERS_TYPES = "Invalid parameter types";
   static FAILED_CREATED_ITEM = "Failed to create a new item";
   static EXISTED_ITEM = "An item already exists!";
+  static PARKING_EXISTED = "Parking is existed";
   static SOMETHING_WRONG = 'Something wrong';
   static NOT_ENOUGH_VARIABLES = 'Not enough variables';
   static INVALID_EMAIL_OR_PASSWORD = 'Invalid email or password';

@@ -20,7 +20,8 @@ const storage = getStorage();
  * @property {String} originalname
  * @property {String} mimetype
  * @property {Buffer} buffer
- * @property {String} email
+ * @property {String?} email
+ * @property {string?} parkName
  * @param {UploadImageParams} param
  * @returns {Promise<{downloadURL?: String}>}
  */

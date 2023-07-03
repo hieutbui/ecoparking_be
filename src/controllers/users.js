@@ -70,13 +70,14 @@ const refreshLogin = async (req, res) => {
 /**
  * @author hieubt
  * @param {Request} req
- * @param {Request} res
+ * @param {Response} res
  * @returns {JSON}
  */
 const register = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
       errors: errors.array(),
     });
   }

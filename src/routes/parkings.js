@@ -1,9 +1,23 @@
 import express from 'express';
 import controllers from '../controllers/index.js';
+import { body } from 'express-validator';
+import multer from 'multer';
 
 const parkings = express.Router();
 
-parkings.post('/create-new-parking', controllers.parkings.createNewParking);
+const upload = multer({ storage: multer.memoryStorage() });
+
+parkings.post(
+  '/create-new-parking',
+  upload.single('file'),
+  body('parkType').isIn([0, 1]),
+  body('name').exists(),
+  body('address').exists(),
+  body('quantity').exists(),
+  body('longitude').exists(),
+  body('latitude').exists(),
+  controllers.parkings.createNewParking
+);
 parkings.get('/get-parking', controllers.parkings.getParkings);
 parkings.post('/delete-parking', controllers.parkings.deleteParkings);
 parkings.patch('/update-parking', controllers.parkings.updateParkings);

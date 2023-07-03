@@ -1,3 +1,4 @@
+import { validationResult } from 'express-validator';
 import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import Parking from '../models/Parking.js';
 import {
@@ -8,31 +9,67 @@ import {
 } from '../repositories/CRUD.js';
 import repositories from '../repositories/index.js';
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {JSON}
+ */
 const createNewParking = async (req, res) => {
-  const { name, address, quantity } = req.body;
+  // const { name, address, quantity } = req.body;
 
-  if (
-    !name ||
-    typeof name !== 'string' ||
-    !address ||
-    typeof address !== 'string' ||
-    !quantity ||
-    typeof quantity !== 'number'
-  ) {
+  // if (
+  //   !name ||
+  //   typeof name !== 'string' ||
+  //   !address ||
+  //   typeof address !== 'string' ||
+  //   !quantity ||
+  //   typeof quantity !== 'number'
+  // ) {
+  //   return res.status(HttpStatusCode.BAD_REQUEST).json({
+  //     message: 'Invalid parameter types!',
+  //   });
+  // }
+
+  // try {
+  //   const parking = await createNewItem(req.body, address, Parking);
+  //   res.status(200).json({
+  //     data: parking,
+  //   });
+  // } catch (error) {
+  //   res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+  //     message: 'Error created parking data',
+  //     error: error.message,
+  //   });
+  // }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
     return res.status(HttpStatusCode.BAD_REQUEST).json({
-      message: 'Invalid parameter types!',
+      result: 'failed',
+      errors: errors.array(),
     });
   }
-
+  const { file, body } = req;
+  const { name, address, quantity, longitude, latitude, parkType, available, } = body;
   try {
-    const parking = await createNewItem(req.body, address, Parking);
-    res.status(200).json({
+    const parking = await repositories.parkings.createParking({
+      name,
+      address,
+      quantity,
+      latitude,
+      longitude,
+      parkType,
+      available,
+      image: file,
+    });
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
       data: parking,
     });
   } catch (error) {
-    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      message: 'Error created parking data',
-      error: error.message,
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      error: error.toString(),
     });
   }
 };

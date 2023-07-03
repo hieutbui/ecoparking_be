@@ -10,11 +10,31 @@ const Parking = mongoose.model(
       address: { type: schemaTypes.String, required: true },
       quantity: { type: schemaTypes.Number, required: true },
       image: { type: schemaTypes.String },
-      longtitude: { type: schemaTypes.String },
-      latitude: { type: schemaTypes.String },
+      longitude: { type: schemaTypes.Decimal128, required: true },
+      latitude: { type: schemaTypes.Decimal128, required: true },
+      available: {
+        type: schemaTypes.Number,
+        required: function () {
+          return this.parkType === 0;
+        },
+      },
       // 0: planned, 1: spontaneous
-      parkType: {type: [0, 1], required: true},
-    },  
+      parkType: {
+        type: schemaTypes.Number,
+        enum: {
+          values: [0, 1],
+          message: '{VALUE} is not supported',
+        },
+        required: true,
+      },
+      unitPrice: {
+        type: schemaTypes.ObjectId,
+        ref: 'UnitPrice',
+        required: function () {
+          return this.parkType === 0;
+        },
+      },
+    },
     {
       timestamps: true,
     }
