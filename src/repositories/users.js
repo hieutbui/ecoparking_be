@@ -37,7 +37,6 @@ const updateProfile = async ({
         mimetype: mimetype,
         buffer: buffer,
         email: user.email,
-        model: 'users',
       });
       user.avatar = uploadImage.downloadURL;
     }
@@ -71,12 +70,6 @@ const login = async ({ email, password }) => {
           expiresIn: process.env.JWT_EXPIRATION,
         }
       );
-      let tokenToDelete = await models.RefreshToken.find({
-        user: existingUser._id,
-      });
-      if (tokenToDelete) {
-        await models.RefreshToken.deleteMany({ user: existingUser._id });
-      }
       let refreshToken = await createRefreshToken(existingUser);
       return {
         ...existingUser.toObject(),
@@ -154,7 +147,6 @@ const register = async ({
     mimetype: mimetype,
     buffer: buffer,
     email: email,
-    model: 'users',
   });
 
   const newUser = await models.User.create({
