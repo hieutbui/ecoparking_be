@@ -124,6 +124,12 @@ const insertUser = async (req, res) => {
   res.send('Post insert users');
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {JSON}
+ */
 const updateProfile = async (req, res) => {
   const { file } = req;
   const { email, gender, phoneNumber, address, role, workingTime, id, name } =
@@ -170,6 +176,33 @@ const updateProfile = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ *@returns {JSON}
+ */
+const logout = async (req, res) => {
+  const userId = req.body.userId;
+  if (!userId) {
+    return res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    await repositories.users.logout({ userId });
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      error: error.toString(),
+    });
+  }
+};
+
 export default {
   login,
   register,
@@ -177,4 +210,5 @@ export default {
   insertUser,
   updateProfile,
   refreshLogin,
+  logout,
 };

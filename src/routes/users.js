@@ -41,4 +41,6 @@ users.post(
 
 users.post('/refreshLogin', controllers.users.refreshLogin);
 
+users.post('/logout', controllers.users.logout);
+
 export default users;

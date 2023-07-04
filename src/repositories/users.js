@@ -175,9 +175,21 @@ const register = async ({
   };
 };
 
+const logout = async ({ userId }) => {
+  try {
+    await models.SingleTicket.findByIdAndDelete(userId);
+    return {
+      result: 'ok',
+    };
+  } catch (error) {
+    throw new Exception(Exception.SOMETHING_WRONG);
+  }
+};
+
 export default {
   login,
   register,
   updateProfile,
   refreshLogin,
+  logout,
 };
