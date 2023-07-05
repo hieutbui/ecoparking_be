@@ -5,6 +5,7 @@ import { EventEmitter } from 'node:events';
 import upload from '../helpers/upload.js';
 import Exception from '../exceptions/Exception.js';
 import { validationResult } from 'express-validator';
+import User from '../models/User.js';
 
 const userEvent = new EventEmitter();
 
@@ -117,7 +118,47 @@ const register = async (req, res) => {
 };
 
 const getDetailUser = async (req, res) => {
-  res.send('Get user by id: ' + req?.params?.id ?? '');
+    try {
+        const { id, role } = req.query;
+        
+        if (!id || !ObjectId.isValid(id)) {
+
+          let allUsers;
+
+          switch(role) {
+            case '0':
+              allUsers = await User.find({role: 0});
+              break;
+            case '1':
+              allUsers = await User.find({role: 1});
+              break;
+            case '2':
+              allUsers = await User.find({role: 2});
+              break;
+            default:
+              allUsers = await User.find();
+          } 
+          
+          return res.status(200).json({
+            data: allUsers
+          })
+        };
+
+        const user = await User.findById(id)
+
+        if (!user) {
+            throw new Error('SingleTicket not found');
+        }
+
+        res.status(200).json({
+          data: user
+        });
+    } catch (error) {
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+          message: 'Error retrieving user data',
+          error: error.message,
+        });
+    }
 };
 
 const insertUser = async (req, res) => {
@@ -169,6 +210,7 @@ const updateProfile = async (req, res) => {
     }
   }
 };
+
 
 export default {
   login,

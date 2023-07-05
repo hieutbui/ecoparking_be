@@ -14,6 +14,7 @@ const SingleTicket = mongoose.model(
       checkedIn: { type: schemaTypes.Date, required: true },
       checkedOut: { type: schemaTypes.Date },
       parkedDate: { type: schemaTypes.Date, required: true },
+      fee: { type: schemaTypes.Number, required: true },
     },
     {
       timestamps: true,

@@ -3,29 +3,28 @@ import SingleTicket from '../models/SingleTicket.js';
 import TicketDetail from '../models/TicketDetail.js';
 import mongoose from 'mongoose';
 import { createNewItem, getItem, deleteItem, updateItem } from '../repositories/CRUD.js';
+import ticketDetails from '../repositories/ticketDetails.js';
 
 const { ObjectId } = mongoose.Types;
 
 const createNewTicket = async (req, res) => {
     try {
-        const { customerId, parkingId, checkedOut, carNumber, carType, special } = req.body;
+        const { customerId, parkingId, checkedIn, checkedOut, carNumber, carType, special } = req.body;
 
-        if (!carNumber || typeof carNumber !== 'string' ||
-            !carType || typeof carType !== 'string'||
-            !checkedOut || typeof checkedOut !== 'object') 
-        {
-            return res.status(HttpStatusCode.BAD_REQUEST).json({
-                message: 'Invalid parameter types!'
-            });
-        }
-
-        const CURRENT_DATE = new Date();
-        console.log(typeof CURRENT_DATE);
+        // if (!carNumber || typeof carNumber !== 'string' ||
+        //     !carType || typeof carType !== 'string'||
+        //     !checkedIn || typeof checkedIn !== 'object' || 
+        //     !checkedOut || typeof checkedOut !== 'object') 
+        // {
+        //     return res.status(HttpStatusCode.BAD_REQUEST).json({
+        //         message: 'Invalid parameter types!'
+        //     });
+        // }
 
         // Check if ticket is available
         const existingTicket = await SingleTicket.findOne({
             customerId,
-            checkedIn: CURRENT_DATE,
+            checkedIn,
             checkedOut,
           });
   
@@ -43,11 +42,14 @@ const createNewTicket = async (req, res) => {
             special,
         });
 
+        const fee = await ticketDetails.calculateFee(checkedIn, checkedOut, parkingId);
+
         const newTicket = await SingleTicket.create({
             ticketDetail: ticketDetail._id,
-            checkedIn: CURRENT_DATE,
+            checkedIn,
             checkedOut,
-            parkedDate: CURRENT_DATE.toISOString().split('T')[0],
+            parkedDate: CURRENT_DATE.toISOString().substr(0, 10),
+            fee,
           });  
 
         res.status(200).json({
@@ -65,16 +67,9 @@ const createNewTicket = async (req, res) => {
 */
 const getTicket = async (req, res) => {
     try {
-        const { id, type } = req.query;
+        const { id } = req.query;
         
-        if (!id || !ObjectId.isValid(id) || 
-            type !== undefined && typeof type !== 'string') {
-            return res.status(HttpStatusCode.BAD_REQUEST).json({
-              message: 'Invalid parameter types!',
-            });
-        }
-
-        if (type === 'all') {
+        if (!id || !ObjectId.isValid(id) ) {
             const allTickets = await SingleTicket.find()
             .populate({
               path: 'ticketDetail',
@@ -85,9 +80,15 @@ const getTicket = async (req, res) => {
             })
             .exec();
 
-            return res.status(200).json({
-                data: allTickets
-            })
+            if (allTickets) {
+                return res.status(200).json({
+                  data: allTickets
+                })
+            } else {
+                return res.status(HttpStatusCode.BAD_REQUEST).json({
+                  message: 'Invalid parameter types!',
+                });
+            }
         }
 
         const singleTicket = await SingleTicket.findById(id)
