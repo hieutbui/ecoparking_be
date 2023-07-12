@@ -39,7 +39,7 @@ users.post('/refreshLogin', controllers.users.refreshLogin);
 
 users.post('/logout', controllers.users.logout);
 
-users.get('/get-booking', controllers.users.getBooking);
+users.post('/get-booking', controllers.users.getBooking);
 
 users.post('/scanQR', controllers.users.scanQR);
 
