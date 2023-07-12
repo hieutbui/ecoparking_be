@@ -2,194 +2,266 @@ import HttpStatusCode from '../exceptions/HttpStatusCode.js';
 import SingleTicket from '../models/SingleTicket.js';
 import TicketDetail from '../models/TicketDetail.js';
 import mongoose from 'mongoose';
-import { createNewItem, getItem, deleteItem, updateItem } from '../repositories/CRUD.js';
+import {
+  createNewItem,
+  getItem,
+  deleteItem,
+  updateItem,
+} from '../repositories/CRUD.js';
 import ticketDetails from '../repositories/ticketDetails.js';
+import models from '../models/index.js';
+import Exception from '../exceptions/Exception.js';
 
 const { ObjectId } = mongoose.Types;
 
 const createNewTicket = async (req, res) => {
-    try {
-        const { customerId, parkingId, checkedIn, checkedOut, carNumber, carType, special } = req.body;
+  try {
+    const {
+      customerId,
+      parkingId,
+      checkedIn,
+      checkedOut,
+      carNumber,
+      carType,
+      special,
+    } = req.body;
 
-        // if (!carNumber || typeof carNumber !== 'string' ||
-        //     !carType || typeof carType !== 'string'||
-        //     !checkedIn || typeof checkedIn !== 'object' || 
-        //     !checkedOut || typeof checkedOut !== 'object') 
-        // {
-        //     return res.status(HttpStatusCode.BAD_REQUEST).json({
-        //         message: 'Invalid parameter types!'
-        //     });
-        // }
+    // if (!carNumber || typeof carNumber !== 'string' ||
+    //     !carType || typeof carType !== 'string'||
+    //     !checkedIn || typeof checkedIn !== 'object' ||
+    //     !checkedOut || typeof checkedOut !== 'object')
+    // {
+    //     return res.status(HttpStatusCode.BAD_REQUEST).json({
+    //         message: 'Invalid parameter types!'
+    //     });
+    // }
 
-        // Check if ticket is available
-        const existingTicket = await SingleTicket.findOne({
-            customerId,
-            checkedIn,
-            checkedOut,
-          });
-  
-        if (existingTicket) {
-            return res.status(HttpStatusCode.CONFLICT).json({
-                message: 'Ticket already exists for the customer.',
-            });
-        }
+    // Check if ticket is available
+    const existingTicket = await TicketDetail.findOne({
+      customerId,
+      parkingId,
+      checkedIn,
+      checkedOut,
+    });
 
-        const ticketDetail = await TicketDetail.create({
-            customerId,
-            parkingId,
-            carNumber,
-            carType,
-            special,
-        });
-
-        const fee = await ticketDetails.calculateFee(checkedIn, checkedOut, parkingId);
-
-        const newTicket = await SingleTicket.create({
-            ticketDetail: ticketDetail._id,
-            checkedIn,
-            checkedOut,
-            parkedDate: CURRENT_DATE.toISOString().substr(0, 10),
-            fee,
-          });  
-
-        res.status(200).json({
-            data: newTicket,
-        });
-    } catch (error) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-          message: 'Error created parking data',
-          error: error.message,
-        });
+    if (existingTicket) {
+      return res.status(HttpStatusCode.CONFLICT).json({
+        message: 'Ticket already exists for the customer.',
+      });
     }
+
+    const ticketDetail = await TicketDetail.create({
+      customerId,
+      parkingId,
+      carNumber,
+      carType,
+      special,
+    });
+
+    // const fee = await ticketDetails.calculateFee(
+    //   checkedIn,
+    //   checkedOut,
+    //   parkingId
+    // );
+
+    const newTicket = await SingleTicket.create({
+      ticketDetail: ticketDetail._id,
+      checkedIn,
+      checkedOut,
+      //   parkedDate: CURRENT_DATE.toISOString().substr(0, 10),
+      //   fee,
+    });
+
+    const user = await models.User.findById(customerId);
+
+    if (user) {
+      user.tickets.push(newTicket._id);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      data: newTicket,
+    });
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      message: 'Error created parking data',
+      error: error.message,
+    });
+  }
 };
 
 /* author: dunglda
-*/
+ */
 const getTicket = async (req, res) => {
-    try {
-        const { id } = req.query;
-        
-        if (!id || !ObjectId.isValid(id) ) {
-            const allTickets = await SingleTicket.find()
-            .populate({
-              path: 'ticketDetail',
-              populate: [
-                { path: 'customerId', model: 'User' },
-                { path: 'parkingId', model: 'Parking' },
-              ],
-            })
-            .exec();
+  try {
+    const { id } = req.query;
 
-            if (allTickets) {
-                return res.status(200).json({
-                  data: allTickets
-                })
-            } else {
-                return res.status(HttpStatusCode.BAD_REQUEST).json({
-                  message: 'Invalid parameter types!',
-                });
-            }
-        }
-
-        const singleTicket = await SingleTicket.findById(id)
+    if (!id || !ObjectId.isValid(id)) {
+      const allTickets = await SingleTicket.find()
         .populate({
-            path: 'ticketDetail',
-            populate: [
-              { path: 'customerId', model: 'User' },
-              { path: 'parkingId', model: 'Parking' },
-            ],
+          path: 'ticketDetail',
+          populate: [
+            { path: 'customerId', model: 'User' },
+            { path: 'parkingId', model: 'Parking' },
+          ],
         })
         .exec();
 
-        if (!singleTicket) {
-            throw new Error('SingleTicket not found');
-        }
-
-        const ticket = {
-            singleTicket,
-        }
-
-        res.status(200).json({
-          data: ticket
+      if (allTickets) {
+        return res.status(200).json({
+          data: allTickets,
         });
-    } catch (error) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-          message: 'Error retrieving ticket data',
-          error: error.message,
+      } else {
+        return res.status(HttpStatusCode.BAD_REQUEST).json({
+          message: 'Invalid parameter types!',
         });
+      }
     }
-};
 
+    const singleTicket = await SingleTicket.findById(id)
+      .populate({
+        path: 'ticketDetail',
+        populate: [
+          { path: 'customerId', model: 'User' },
+          { path: 'parkingId', model: 'Parking' },
+        ],
+      })
+      .exec();
+
+    if (!singleTicket) {
+      throw new Error('SingleTicket not found');
+    }
+
+    const ticket = {
+      singleTicket,
+    };
+
+    res.status(200).json({
+      data: ticket,
+    });
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      message: 'Error retrieving ticket data',
+      error: error.message,
+    });
+  }
+};
 
 /* author: dunglda
 description: update a ticket in DB
 */
 const updateTicket = async (req, res) => {
-    const {id, name, address, quantity } = req.body;
+  const { id, name, address, quantity } = req.body;
 
-    if (!id || typeof id !== 'string' ||
-        !name || typeof name !== 'string' ||
-        !address || typeof address !== 'string' ||
-        !quantity || typeof quantity !== 'number' ) {
-            return res.status(HttpStatusCode.BAD_REQUEST).json({
-                message: 'Invalid parameter types!'
-            });
-    }
+  if (
+    !id ||
+    typeof id !== 'string' ||
+    !name ||
+    typeof name !== 'string' ||
+    !address ||
+    typeof address !== 'string' ||
+    !quantity ||
+    typeof quantity !== 'number'
+  ) {
+    return res.status(HttpStatusCode.BAD_REQUEST).json({
+      message: 'Invalid parameter types!',
+    });
+  }
 
-    try {
-        const updatedParking = await updateItem(id, Ticket);
+  try {
+    const updatedParking = await updateItem(id, Ticket);
 
-        res.status(HttpStatusCode.OK).json({
-            data: updatedParking,
-            message: 'Update ticket success!'
-        });
-    } catch (error) {
-        //Handle errors while finding or creating a parking record
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            message: `Failed to update a ticket. Error: ${error.message}`
-        });
-    }
+    res.status(HttpStatusCode.OK).json({
+      data: updatedParking,
+      message: 'Update ticket success!',
+    });
+  } catch (error) {
+    //Handle errors while finding or creating a parking record
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      message: `Failed to update a ticket. Error: ${error.message}`,
+    });
+  }
 };
 
 /* author: dunglda
-*/
+ */
 const deleteTicket = async (req, res) => {
-    try {
-        const { id } = req.body;
+  try {
+    const { id } = req.body;
 
-        if (!id || !mongoose.isValidObjectId(id))
-        {
-            return res.status(HttpStatusCode.BAD_REQUEST).json({
-                message: 'Invalid parameter types!'
-            });
-        }
-
-        const existingTicket = await SingleTicket.findById(id);
-       
-        if (existingTicket) {
-            await SingleTicket.deleteOne({_id: id});
-            
-            res.status(HttpStatusCode.OK).json({
-                message: 'Delete ticket success!'
-            });
-        } else {
-            return res.status(HttpStatusCode.NOT_FOUND).json({
-                message: "Not Found ticket to delete"
-            })
-        }
-
-    } catch (error) {
-        //Handle errors while finding or creating a ticket record
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            message: `Failed to delete a ticket. Error: ${error.message}`
-        });
+    if (!id || !mongoose.isValidObjectId(id)) {
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
+        message: 'Invalid parameter types!',
+      });
     }
+
+    const existingTicket = await SingleTicket.findById(id);
+
+    if (existingTicket) {
+      await SingleTicket.deleteOne({ _id: id });
+
+      res.status(HttpStatusCode.OK).json({
+        message: 'Delete ticket success!',
+      });
+    } else {
+      return res.status(HttpStatusCode.NOT_FOUND).json({
+        message: 'Not Found ticket to delete',
+      });
+    }
+  } catch (error) {
+    //Handle errors while finding or creating a ticket record
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      message: `Failed to delete a ticket. Error: ${error.message}`,
+    });
+  }
 };
 
-export default { 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const getMultiTickets = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    if (!id) {
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
+        result: 'failed',
+        message: Exception.NOT_ENOUGH_VARIABLES,
+      });
+    }
+    const tickets = await models.SingleTicket.find({ _id: { $in: id } });
+    if (!tickets) {
+      return res.status(HttpStatusCode.NOT_FOUND).json({
+        result: 'failed',
+        message: 'ticket not found',
+      });
+    }
+    let ticketsId = [];
+    tickets.forEach((ticket) => {
+      ticketsId.push(ticket.ticketDetail);
+    });
+    const ticketDetails = await models.TicketDetail.find({
+      _id: { $in: ticketsId },
+    });
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
+      data: ticketDetails,
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      message: error.toString(),
+    });
+  }
+};
+
+export default {
   createNewTicket,
   getTicket,
   updateTicket,
   deleteTicket,
+  getMultiTickets,
 };
- 

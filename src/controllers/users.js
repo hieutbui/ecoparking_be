@@ -6,6 +6,8 @@ import upload from '../helpers/upload.js';
 import Exception from '../exceptions/Exception.js';
 import { validationResult } from 'express-validator';
 import User from '../models/User.js';
+import controllers from './index.js';
+import models from '../models/index.js';
 
 const userEvent = new EventEmitter();
 
@@ -118,47 +120,46 @@ const register = async (req, res) => {
 };
 
 const getDetailUser = async (req, res) => {
-    try {
-        const { id, role } = req.query;
-        
-        if (!id || !ObjectId.isValid(id)) {
+  try {
+    const { id, role } = req.query;
 
-          let allUsers;
+    if (!id || !ObjectId.isValid(id)) {
+      let allUsers;
 
-          switch(role) {
-            case '0':
-              allUsers = await User.find({role: 0});
-              break;
-            case '1':
-              allUsers = await User.find({role: 1});
-              break;
-            case '2':
-              allUsers = await User.find({role: 2});
-              break;
-            default:
-              allUsers = await User.find();
-          } 
-          
-          return res.status(200).json({
-            data: allUsers
-          })
-        };
+      switch (role) {
+        case '0':
+          allUsers = await User.find({ role: 0 });
+          break;
+        case '1':
+          allUsers = await User.find({ role: 1 });
+          break;
+        case '2':
+          allUsers = await User.find({ role: 2 });
+          break;
+        default:
+          allUsers = await User.find();
+      }
 
-        const user = await User.findById(id)
-
-        if (!user) {
-            throw new Error('SingleTicket not found');
-        }
-
-        res.status(200).json({
-          data: user
-        });
-    } catch (error) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-          message: 'Error retrieving user data',
-          error: error.message,
-        });
+      return res.status(200).json({
+        data: allUsers,
+      });
     }
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      throw new Error('SingleTicket not found');
+    }
+
+    res.status(200).json({
+      data: user,
+    });
+  } catch (error) {
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      message: 'Error retrieving user data',
+      error: error.message,
+    });
+  }
 };
 
 const insertUser = async (req, res) => {
@@ -244,6 +245,92 @@ const logout = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const getBooking = async (req, res) => {
+  const userId = req.body.userId;
+  if (!userId) {
+    return res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    const user = await models.User.findById(userId);
+    const tickets = await models.SingleTicket.find({
+      _id: {
+        $in: user.tickets,
+      },
+    });
+    if (!tickets) {
+      return res.status(HttpStatusCode.NOT_FOUND).json({
+        result: 'failed',
+        message: 'ticket not found',
+      });
+    }
+    let ticketsId = [];
+    tickets.forEach((ticket) => {
+      ticketsId.push(ticket.ticketDetail);
+    });
+    let ticketDetails = await models.TicketDetail.find({
+      _id: { $in: ticketsId },
+    });
+    ticketDetails = await Promise.all(
+      ticketDetails.map(async (element, index) => {
+        const parking = await models.Parking.findById(element.parkingId);
+        element = { ...element._doc, parking: parking };
+        return element;
+      })
+    );
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
+      data: ticketDetails,
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      error: error.toString(),
+    });
+  }
+};
+
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const scanQR = async (req, res) => {
+  const { ticketId } = req.body;
+  if (!ticketId) {
+    return res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    let ticketDetail = await models.TicketDetail.findById(ticketId);
+    let currentDate = new Date();
+    if (!ticketDetail.startTime) {
+      ticketDetail.startTime = currentDate;
+    } else {
+      ticketDetail.endTime = currentDate;
+    }
+    await ticketDetail.save();
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
+      data: ticketDetail,
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      error: error.toString(),
+    });
+  }
+};
+
 export default {
   login,
   register,
@@ -252,4 +339,6 @@ export default {
   updateProfile,
   refreshLogin,
   logout,
+  getBooking,
+  scanQR,
 };

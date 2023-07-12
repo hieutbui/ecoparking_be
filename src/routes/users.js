@@ -5,7 +5,7 @@ import multer from 'multer';
 
 const users = express.Router();
 
-const upload = multer({ storage: multer.memoryStorage() }); 
+const upload = multer({ storage: multer.memoryStorage() });
 
 users.get('/', controllers.users.getDetailUser);
 
@@ -38,5 +38,9 @@ users.post(
 users.post('/refreshLogin', controllers.users.refreshLogin);
 
 users.post('/logout', controllers.users.logout);
+
+users.get('/get-booking', controllers.users.getBooking);
+
+users.post('/scanQR', controllers.users.scanQR);
 
 export default users;

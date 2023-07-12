@@ -9,8 +9,14 @@ const TicketDetail = mongoose.model(
       customerId: { type: schemaTypes.ObjectId, ref: 'User', required: true },
       parkingId: { type: schemaTypes.ObjectId, ref: 'Parking', required: true },
       carNumber: { type: schemaTypes.String, required: true },
-      carType: { type: schemaTypes.String, required: true },
+      // carType: { type: schemaTypes.String, required: true },
       special: { type: schemaTypes.String },
+      startTime: {
+        type: schemaTypes.Date,
+      },
+      endTime: {
+        type: schemaTypes.Date,
+      },
     },
     {
       timestamps: true,

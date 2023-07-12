@@ -22,6 +22,7 @@ parkings.get('/get-parking', controllers.parkings.getParkings);
 parkings.post('/delete-parking', controllers.parkings.deleteParkings);
 parkings.patch('/update-parking', controllers.parkings.updateParkings);
 parkings.get('/get-all', controllers.parkings.getAllParking);
+parkings.get('/get-one-parking', controllers.parkings.getOne);
 // parkings.get('/search-parkings', controllers.parkings.searchParkings);
 
 export default parkings;

@@ -8,7 +8,7 @@ import { OutputType, print } from './src/helpers/print.js';
 import Exception from './src/exceptions/Exception.js';
 import helmet from 'helmet';
 import cors from 'cors';
-// import checkToken from './src/authentication/auth.js';
+import checkToken from './src/authentication/auth.js';
 
 /**
  * App Variables

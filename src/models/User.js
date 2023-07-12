@@ -66,6 +66,18 @@ const User = mongoose.model(
           return this.role === 1;
         },
       },
+      saveParkings: [
+        {
+          type: schemaTypes.ObjectId,
+          ref: 'Parking',
+        },
+      ],
+      tickets: [
+        {
+          type: schemaTypes.ObjectId,
+          ref: 'SingleTicket',
+        },
+      ],
     },
     {
       timestamps: true,
