@@ -33,7 +33,7 @@ const Parking = mongoose.model(
         required: function () {
           return this.parkType === 0;
         },
-      },
+      },  
     },
     {
       timestamps: true,

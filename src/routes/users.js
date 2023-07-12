@@ -5,13 +5,9 @@ import multer from 'multer';
 
 const users = express.Router();
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage() }); 
 
-users.get('/', (req, res) => {
-  res.send('response from users');
-});
-
-users.get('/:id', controllers.users.getDetailUser);
+users.get('/', controllers.users.getDetailUser);
 
 users.post(
   '/login',
