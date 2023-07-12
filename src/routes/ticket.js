@@ -7,5 +7,6 @@ tickets.post('/create-new-ticket', controllers.tickets.createNewTicket);
 tickets.get('/get-ticket', controllers.tickets.getTicket);
 tickets.post('/delete-ticket', controllers.tickets.deleteTicket);
 tickets.patch('/update-ticket', controllers.tickets.updateTicket);
+tickets.get('/get-multi-tickets', controllers.tickets.getMultiTickets);
 
 export default tickets;

@@ -8,6 +8,8 @@ import {
   updateItem,
 } from '../repositories/CRUD.js';
 import repositories from '../repositories/index.js';
+import Exception from '../exceptions/Exception.js';
+import models from '../models/index.js';
 
 /**
  * @author hieubt
@@ -50,7 +52,8 @@ const createNewParking = async (req, res) => {
     });
   }
   const { file, body } = req;
-  const { name, address, quantity, longitude, latitude, parkType, available, } = body;
+  const { name, address, quantity, longitude, latitude, parkType, available } =
+    body;
   try {
     const parking = await repositories.parkings.createParking({
       name,
@@ -89,8 +92,8 @@ const getParkings = async (req, res) => {
         });
       } else {
         return res.status(HttpStatusCode.BAD_REQUEST).json({
-          message: "Invalid Parameters",
-        })
+          message: 'Invalid Parameters',
+        });
       }
     }
 
@@ -98,7 +101,6 @@ const getParkings = async (req, res) => {
     res.status(200).json({
       data: parking,
     });
-
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       message: 'Error retrieving parking data',
@@ -189,6 +191,33 @@ const getAllParking = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const getOne = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) {
+      res.status(HttpStatusCode.BAD_REQUEST).json({
+        result: 'failed',
+        message: Exception.NOT_ENOUGH_VARIABLES,
+      });
+    } else {
+      const parking = await models.Parking.findById(id);
+      return res.status(HttpStatusCode.OK).json({
+        result: 'ok',
+        data: parking,
+      });
+    }
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      message: error.toString(),
+    });
+  }
+};
 
 export default {
   createNewParking,
@@ -196,4 +225,5 @@ export default {
   updateParkings,
   deleteParkings,
   getAllParking,
+  getOne,
 };
