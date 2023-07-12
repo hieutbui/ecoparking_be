@@ -25,7 +25,7 @@ const port = process.env.PORT ?? 3000;
 /**
  * App configuration
  */
-// app.use(checkToken);
+app.use(checkToken);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(helmet());
