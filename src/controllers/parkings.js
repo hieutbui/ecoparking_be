@@ -77,19 +77,28 @@ const createNewParking = async (req, res) => {
 /* author: dunglda
  */
 const getParkings = async (req, res) => {
-  const { id } = req.query;
-
-  if (!id || typeof id !== ('string' || 'object')) {
-    return res.status(HttpStatusCode.BAD_REQUEST).json({
-      message: 'Invalid parameter types!',
-    });
-  }
-
   try {
+    const { id } = req.query;
+
+    if (!id || typeof id !== ('string' || 'object')) {
+      const parking = await Parking.find();
+
+      if (parking) {
+        return res.status(HttpStatusCode.OK).json({
+          data: parking,
+        });
+      } else {
+        return res.status(HttpStatusCode.BAD_REQUEST).json({
+          message: "Invalid Parameters",
+        })
+      }
+    }
+
     const parking = await getItem(id, Parking);
     res.status(200).json({
       data: parking,
     });
+
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       message: 'Error retrieving parking data',
@@ -179,6 +188,7 @@ const getAllParking = async (req, res) => {
     });
   }
 };
+
 
 export default {
   createNewParking,
