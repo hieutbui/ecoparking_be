@@ -141,13 +141,17 @@ const register = async ({
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const { originalname, mimetype, buffer } = avatar;
-  const uploadImage = await upload.image({
-    originalname: originalname,
-    mimetype: mimetype,
-    buffer: buffer,
-    email: email,
-  });
+  let uploadImage;
+
+  if (avatar) {
+    const { originalname, mimetype, buffer } = avatar;
+    uploadImage = await upload.image({
+      originalname: originalname,
+      mimetype: mimetype,
+      buffer: buffer,
+      email: email,
+    });
+  }
 
   const newUser = await models.User.create({
     phoneNumber,

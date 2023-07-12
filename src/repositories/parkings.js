@@ -40,14 +40,18 @@ const createParking = async ({
     throw new Exception(Exception.PARKING_EXISTED);
   }
 
-  const { originalname, mimetype, buffer } = image;
-  const uploadImage = await upload.image({
-    originalname: originalname,
-    mimetype: mimetype,
-    buffer: buffer,
-    parkName: name,
-    model: 'parkings',
-  });
+  let uploadImage;
+
+  if (image) {
+    const { originalname, mimetype, buffer } = image;
+    uploadImage = await upload.image({
+      originalname: originalname,
+      mimetype: mimetype,
+      buffer: buffer,
+      parkName: name,
+      model: 'parkings',
+    });
+  }
 
   const newParking = await models.Parking.create({
     name,

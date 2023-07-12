@@ -6,9 +6,8 @@ const UnitPrice = mongoose.model(
   new Schema(
     {
       id: { type: schemaTypes.ObjectId },
-      stateTime: { type: schemaTypes.Date, required: true },
-      endTime: { type: schemaTypes.Date, required: true },
-      price: { type: schemaTypes.Decimal128, required: true },
+      dayPrice: { type: schemaTypes.Number, required: true },
+      nightPrice: { type: schemaTypes.Number, required: true },
     },
     {
       timestamps: true,
