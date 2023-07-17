@@ -38,10 +38,10 @@ const createNewTicket = async (req, res) => {
 
     // Check if ticket is available
     const existingTicket = await TicketDetail.findOne({
-      customerId,
-      parkingId,
-      checkedIn,
-      checkedOut,
+      customerId: customerId,
+      parkingId: parkingId,
+      startTime: checkedIn,
+      endTime: checkedOut,
     });
 
     if (existingTicket) {
