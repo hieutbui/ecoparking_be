@@ -258,10 +258,56 @@ const getMultiTickets = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const cancelTicket = async (req, res) => {
+  const { ticketId } = req.body;
+  if (!ticketId) {
+    return res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+
+  try {
+    const ticket = await models.SingleTicket.findById(ticketId);
+    if (!ticket) {
+      return res.status(HttpStatusCode.NOT_FOUND).json({
+        result: 'failed',
+        message: 'Ticket not found',
+      });
+    }
+    const ticketDetail = await models.TicketDetail.findById(
+      ticket.ticketDetail
+    );
+    if (!ticketDetail) {
+      return res.status(HttpStatusCode.NOT_FOUND).json({
+        result: 'failed',
+        message: 'Ticket not found',
+      });
+    }
+    ticketDetail.isCancel = true;
+    await ticketDetail.save();
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
+      message: 'Ticket is canceled',
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      message: error.toString(),
+    });
+  }
+};
+
 export default {
   createNewTicket,
   getTicket,
   updateTicket,
   deleteTicket,
   getMultiTickets,
+  cancelTicket,
 };
