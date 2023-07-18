@@ -315,8 +315,10 @@ const scanQR = async (req, res) => {
     let currentDate = new Date();
     if (!ticketDetail.startTime) {
       ticketDetail.startTime = currentDate;
+      ticketDetail.status = 'nowActive';
     } else {
       ticketDetail.endTime = currentDate;
+      ticketDetail.status = 'completed';
     }
     await ticketDetail.save();
     return res.status(HttpStatusCode.OK).json({
