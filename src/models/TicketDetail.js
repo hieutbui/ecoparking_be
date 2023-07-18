@@ -17,6 +17,9 @@ const TicketDetail = mongoose.model(
       endTime: {
         type: schemaTypes.Date,
       },
+      isCancel: {
+        type: schemaTypes.Boolean,
+      },
     },
     {
       timestamps: true,
