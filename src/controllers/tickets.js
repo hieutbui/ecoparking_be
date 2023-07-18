@@ -73,6 +73,8 @@ const createNewTicket = async (req, res) => {
       //   fee,
     });
 
+    const parking = await models.Parking.findById(parkingId);
+
     const user = await models.User.findById(customerId);
 
     if (user) {
@@ -82,7 +84,12 @@ const createNewTicket = async (req, res) => {
     await user.save();
 
     res.status(200).json({
-      data: newTicket,
+      data: {
+        singleTicket: newTicket,
+        parkName: parking.name,
+        carNumber: carNumber,
+        ticketDetailId: ticketDetail._id,
+      },
     });
   } catch (error) {
     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
