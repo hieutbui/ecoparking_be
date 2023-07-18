@@ -17,8 +17,12 @@ const TicketDetail = mongoose.model(
       endTime: {
         type: schemaTypes.Date,
       },
-      isCancel: {
-        type: schemaTypes.Boolean,
+      status: {
+        type: schemaTypes.String,
+        enum: {
+          values: ['paid', 'nowActive', 'completed', 'canceled'],
+          message: '{VALUE} is not supported',
+        },
       },
     },
     {

@@ -56,6 +56,7 @@ const createNewTicket = async (req, res) => {
       carNumber,
       carType,
       special,
+      status: 'paid',
     });
 
     // const fee = await ticketDetails.calculateFee(
@@ -289,7 +290,7 @@ const cancelTicket = async (req, res) => {
         message: 'Ticket not found',
       });
     }
-    ticketDetail.isCancel = true;
+    ticketDetail.status = 'canceled';
     await ticketDetail.save();
     return res.status(HttpStatusCode.OK).json({
       result: 'ok',
