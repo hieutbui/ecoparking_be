@@ -10,6 +10,7 @@ import {
 import repositories from '../repositories/index.js';
 import Exception from '../exceptions/Exception.js';
 import models from '../models/index.js';
+import mongoose from 'mongoose';
 
 /**
  * @author hieubt
@@ -219,6 +220,76 @@ const getOne = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const saveParking = async (req, res) => {
+  const { parkingId, userId } = req.body;
+  if (!parkingId || !userId) {
+    res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    const user = await models.User.findById(userId);
+    if (user) {
+      const toObjectId = new mongoose.Types.ObjectId(parkingId);
+      const isSaved = user.saveParkings.includes(toObjectId);
+      if (!isSaved) {
+        user.saveParkings.push(toObjectId);
+        await user.save();
+      }
+      return res.status(HttpStatusCode.OK).json({
+        result: 'ok',
+      });
+    }
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      message: error.toString(),
+    });
+  }
+};
+
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const unSaveParking = async (req, res) => {
+  const { parkingId, userId } = req.body;
+  if (!parkingId || !userId) {
+    res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    const user = await models.User.findById(userId);
+    if (user) {
+      const toObjectId = new mongoose.Types.ObjectId(parkingId);
+      const isSaved = user.saveParkings.includes(toObjectId);
+      if (isSaved) {
+        user.saveParkings = user.saveParkings.filter((item) => {
+          return item.toString() !== toObjectId.toString();
+        });
+        await user.save();
+      }
+      return res.status(HttpStatusCode.OK).json({
+        result: 'ok',
+      });
+    }
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      message: error.toString(),
+    });
+  }
+};
+
 export default {
   createNewParking,
   getParkings,
@@ -226,4 +297,6 @@ export default {
   deleteParkings,
   getAllParking,
   getOne,
+  saveParking,
+  unSaveParking,
 };
