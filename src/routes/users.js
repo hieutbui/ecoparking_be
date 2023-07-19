@@ -45,4 +45,6 @@ users.post('/scanQR', controllers.users.scanQR);
 
 users.post('/change-password', controllers.users.changePassword);
 
+users.post('/get-info', controllers.users.getUserInfo);
+
 export default users;

@@ -290,6 +290,35 @@ const unSaveParking = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const getSavedParking = async (req, res) => {
+  const { parkingsId } = req.body;
+  if (!parkingsId) {
+    res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    const parkings = await models.Parking.find({
+      _id: { $in: parkingsId },
+    });
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
+      data: parkings,
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      message: error.toString(),
+    });
+  }
+};
+
 export default {
   createNewParking,
   getParkings,
@@ -299,4 +328,5 @@ export default {
   getOne,
   saveParking,
   unSaveParking,
+  getSavedParking,
 };
