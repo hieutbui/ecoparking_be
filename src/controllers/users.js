@@ -363,6 +363,33 @@ const changePassword = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const getUserInfo = async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) {
+    return res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    const userInfo = await repositories.users.getUserInfo({ userId });
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
+      dat: userInfo,
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      error: error.toString(),
+    });
+  }
+};
+
 export default {
   login,
   register,
@@ -374,4 +401,5 @@ export default {
   getBooking,
   scanQR,
   changePassword,
+  getUserInfo,
 };

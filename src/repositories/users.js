@@ -194,8 +194,8 @@ const logout = async ({ userId }) => {
 };
 
 const changePassword = async ({ userId, oldPassword, newPassword }) => {
-  const user = await models.User.findById(userId);
   try {
+    const user = await models.User.findById(userId);
     let isMatch = await bcrypt.compare(oldPassword, user.password);
     if (isMatch) {
       const salt = await bcrypt.genSalt(10);
@@ -208,6 +208,18 @@ const changePassword = async ({ userId, oldPassword, newPassword }) => {
   }
 };
 
+const getUserInfo = async ({ userId }) => {
+  try {
+    const user = await models.User.findById(userId);
+    return {
+      ...user._doc,
+      password: 'not show',
+    };
+  } catch (error) {
+    throw new Exception(Exception.USER_NOT_EXISTED);
+  }
+};
+
 export default {
   login,
   register,
@@ -215,4 +227,5 @@ export default {
   refreshLogin,
   logout,
   changePassword,
+  getUserInfo,
 };
