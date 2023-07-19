@@ -281,16 +281,7 @@ const cancelTicket = async (req, res) => {
   }
 
   try {
-    const ticket = await models.SingleTicket.findById(ticketId);
-    if (!ticket) {
-      return res.status(HttpStatusCode.NOT_FOUND).json({
-        result: 'failed',
-        message: 'Ticket not found',
-      });
-    }
-    const ticketDetail = await models.TicketDetail.findById(
-      ticket.ticketDetail
-    );
+    const ticketDetail = await models.TicketDetail.findById(ticketId);
     if (!ticketDetail) {
       return res.status(HttpStatusCode.NOT_FOUND).json({
         result: 'failed',

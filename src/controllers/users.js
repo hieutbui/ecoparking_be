@@ -333,6 +333,36 @@ const scanQR = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const changePassword = async (req, res) => {
+  const { userId, oldPassword, newPassword } = req.body;
+  if (!userId || !oldPassword || !newPassword) {
+    return res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    await repositories.users.changePassword({
+      userId,
+      oldPassword,
+      newPassword,
+    });
+    return res.status(HttpStatusCode.OK).json({
+      result: 'ok',
+    });
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      error: error.toString(),
+    });
+  }
+};
+
 export default {
   login,
   register,
@@ -343,4 +373,5 @@ export default {
   logout,
   getBooking,
   scanQR,
+  changePassword,
 };

@@ -193,10 +193,26 @@ const logout = async ({ userId }) => {
   }
 };
 
+const changePassword = async ({ userId, oldPassword, newPassword }) => {
+  const user = await models.User.findById(userId);
+  try {
+    let isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (isMatch) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+      user.password = hashedPassword;
+      await user.save();
+    }
+  } catch (error) {
+    throw new Exception(Exception.INVALID_EMAIL_OR_PASSWORD);
+  }
+};
+
 export default {
   login,
   register,
   updateProfile,
   refreshLogin,
   logout,
+  changePassword,
 };

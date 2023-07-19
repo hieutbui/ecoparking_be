@@ -43,4 +43,6 @@ users.post('/get-booking', controllers.users.getBooking);
 
 users.post('/scanQR', controllers.users.scanQR);
 
+users.post('/change-password', controllers.users.changePassword);
+
 export default users;
