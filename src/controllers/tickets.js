@@ -311,6 +311,42 @@ const cancelTicket = async (req, res) => {
   }
 };
 
+/**
+ * @author hieubt
+ * @param {Request} req
+ * @param {Response} res
+ */
+const getSingleTicket = async (req, res) => {
+  const { ticketDetailId } = req.body;
+  if (!ticketDetailId) {
+    return res.status(HttpStatusCode.BAD_REQUEST).json({
+      result: 'failed',
+      message: Exception.NOT_ENOUGH_VARIABLES,
+    });
+  }
+  try {
+    const singleTicket = await models.SingleTicket.findOne({
+      ticketDetail: ticketDetailId,
+    });
+    if (!singleTicket) {
+      return res.status(HttpStatusCode.NOT_FOUND).json({
+        result: 'failed',
+        message: 'NOT FOUND',
+      });
+    } else {
+      return res.status(HttpStatusCode.OK).json({
+        result: 'ok',
+        data: singleTicket,
+      });
+    }
+  } catch (error) {
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      result: 'failed',
+      message: error.toString(),
+    });
+  }
+};
+
 export default {
   createNewTicket,
   getTicket,
@@ -318,4 +354,5 @@ export default {
   deleteTicket,
   getMultiTickets,
   cancelTicket,
+  getSingleTicket,
 };
