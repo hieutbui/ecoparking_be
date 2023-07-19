@@ -70,6 +70,12 @@ const login = async ({ email, password }) => {
           expiresIn: process.env.JWT_EXPIRATION,
         }
       );
+      let existingRefreshToken = await models.RefreshToken.findOne({
+        user: existingUser._id,
+      });
+      if (existingRefreshToken) {
+        await models.RefreshToken.deleteMany({ user: existingUser._id });
+      }
       let refreshToken = await createRefreshToken(existingUser);
       return {
         ...existingUser.toObject(),
@@ -141,7 +147,7 @@ const register = async ({
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  let uploadImage;
+  let uploadImage = null;
 
   if (avatar) {
     const { originalname, mimetype, buffer } = avatar;
@@ -153,17 +159,22 @@ const register = async ({
     });
   }
 
-  const newUser = await models.User.create({
+  let dataToCreate = {
     phoneNumber,
     password: hashedPassword,
     email,
     name,
-    avatar: uploadImage.downloadURL,
     address,
     gender,
     role,
     workingTime,
-  });
+  };
+
+  if (uploadImage) {
+    dataToCreate = { ...dataToCreate, avatar: uploadImage.downloadURL };
+  }
+
+  const newUser = await models.User.create(dataToCreate);
 
   return {
     ...newUser._doc,
@@ -173,7 +184,7 @@ const register = async ({
 
 const logout = async ({ userId }) => {
   try {
-    await models.SingleTicket.findByIdAndDelete(userId);
+    await models.RefreshToken.deleteMany({ user: userId });
     return {
       result: 'ok',
     };
