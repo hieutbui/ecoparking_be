@@ -380,7 +380,7 @@ const getUserInfo = async (req, res) => {
     const userInfo = await repositories.users.getUserInfo({ userId });
     return res.status(HttpStatusCode.OK).json({
       result: 'ok',
-      dat: userInfo,
+      data: userInfo,
     });
   } catch (error) {
     return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
