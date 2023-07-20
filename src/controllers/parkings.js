@@ -296,16 +296,17 @@ const unSaveParking = async (req, res) => {
  * @param {Response} res
  */
 const getSavedParking = async (req, res) => {
-  const { parkingsId } = req.body;
-  if (!parkingsId) {
+  const { userId } = req.body;
+  if (!userId) {
     res.status(HttpStatusCode.BAD_REQUEST).json({
       result: 'failed',
       message: Exception.NOT_ENOUGH_VARIABLES,
     });
   }
   try {
+    const user = await models.User.findById(userId);
     const parkings = await models.Parking.find({
-      _id: { $in: parkingsId },
+      _id: { $in: user.saveParkings },
     });
     return res.status(HttpStatusCode.OK).json({
       result: 'ok',
